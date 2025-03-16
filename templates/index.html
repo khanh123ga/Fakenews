@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiểm tra tin tức</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            background-color: #000;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group textarea, .form-group button {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-group textarea {
+            height: 300px;
+            resize: vertical;
+        }
+        .form-group button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        .form-group button.reset {
+            background-color: #dc3545;
+        }
+        .result {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .result-reference {
+            color: red;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-size: 16px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kiểm tra tin tức</h1>
+        <div class="form-group">
+            <textarea id="text" name="text" placeholder="Nhập tin tức để kiểm tra..."></textarea>
+        </div>
+        <div class="form-group">
+            <button onclick="predict()">Kiểm tra</button>
+            <button style="margin-top: 10px;" class="reset" onclick="reset()">Reset</button>
+        </div>
+        <div class="result" id="result"></div>
+        <div class="error" id="error"></div>
+    </div>
+
+    <script>
+        async function predict() {
+            const text = document.getElementById('text').value;
+            if (!text.trim()) {
+                document.getElementById('error').innerText = 'Vui lòng nhập văn bản để dự đoán.';
+                document.getElementById('result').innerText = '';
+                return;
+            }
+            document.getElementById('error').innerText = '';
+            
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ text })
+            });
+            const result = await response.json();
+            document.getElementById('result').innerHTML = `<div class="result-reference">Kết quả tham khảo:</div><div>${result.prediction}</div>`;
+        }
+
+        async function reset() {
+            document.getElementById('text').value = '';
+            document.getElementById('result').innerText = '';
+            document.getElementById('error').innerText = '';
+            await fetch('/reset', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        }
+    </script>
+</body>
+</html>
